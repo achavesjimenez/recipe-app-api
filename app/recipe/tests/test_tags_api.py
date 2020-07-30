@@ -62,3 +62,26 @@ class PrivateTagsApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
         self.assertEqual(res.data[0], expected)
+
+    def test_create_tag_successful(self):
+        """test that we can create a new tag"""
+        tag_payload = {
+            'name': 'test_tag'
+        }
+        res = self.client.post(TAGS_URL, tag_payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        exists = Tag.objects.filter(
+            user=self.user,
+            name=tag_payload['name']
+        ).exists()
+        self.assertTrue(exists)
+
+    def test_malformed_tag(self):
+        """test that validation error thrown if malformed tag"""
+        tag_payload = {
+            'name': ''
+        }
+        res = self.client.post(TAGS_URL, tag_payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
